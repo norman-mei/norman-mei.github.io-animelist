@@ -1,1 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Anime List</title>
+    <style>
+        /* Basic Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
+        /* Light Mode (Default) */
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        header h1 {
+            margin-bottom: 15px;
+            color: #333;
+            transition: color 0.3s; /* Add transition */
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px; /* Adjusted gap */
+            flex-wrap: wrap;
+            margin-bottom: 15px; /* Space below controls */
+        }
+        .sort-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px; /* Adjusted gap */
+            flex-wrap: wrap;
+            margin-top: 10px; /* Space above sort buttons */
+        }
+
+        #search-bar {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-width: 200px; /* Slightly reduced width */
+            font-size: 0.95rem; /* Slightly smaller font */
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s; /* Add transitions */
+        }
+
+        /* Style for all buttons in controls */
+        .controls button, .sort-controls button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem; /* Consistent font size */
+            transition: background-color 0.2s, color 0.2s; /* Add transitions */
+        }
+
+        /* Specific style for dark mode toggle */
+        #dark-mode-toggle {
+            background-color: #555;
+            color: white;
+        }
+        #dark-mode-toggle:hover {
+            background-color: #333;
+        }
+
+        /* Specific styles for sort buttons (Light Mode) */
+        .sort-controls button {
+             background-color: #e0e0e0;
+             color: #333;
+             border: 1px solid #ccc;
+        }
+        .sort-controls button:hover {
+             background-color: #d0d0d0;
+        }
+         .sort-controls button.active { /* Style for active sort */
+             background-color: #007bff;
+             color: white;
+             border-color: #0056b3;
+         }
+
+
+        main {
+            margin-top: 20px;
+        }
+
+        h2 {
+            color: #555;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            transition: color 0.3s, border-bottom-color 0.3s; /* Add transitions */
+        }
+
+        .anime-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Responsive grid */
+            gap: 20px;
+        }
+
+        .anime-item {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s, border-color 0.3s; /* Add transitions */
+            display: flex; /* Use flexbox for internal alignment */
+            flex-direction: column; /* Stack image and text vertically */
+            justify-content: space-between; /* Push text to bottom if needed */
+        }
+
+        .anime-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .anime-poster {
+            width: 100%;
+            height: 200px; /* Adjust as needed */
+            object-fit: cover; /* Scales image nicely */
+            border-radius: 4px;
+            margin-bottom: 10px;
+            background-color: #e0e0e0; /* Placeholder bg color */
+            transition: background-color 0.3s; /* Add transition */
+        }
+
+        .anime-link {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            font-size: 0.9rem;
+            word-wrap: break-word; /* Prevent long titles from overflowing badly */
+             transition: color 0.3s; /* Add transition */
+        }
+
+        .anime-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Specific styles for the MAL link placeholder */
+        .anime-link[href="x"] {
+            color: #dc3545; /* Red color for placeholder */
+            font-style: italic;
+        }
+        .anime-link[href="x"]:after {
+            content: " (add link)";
+            font-size: 0.7em;
+            font-style: normal;
+        }
+
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #777;
+            transition: border-top-color 0.3s, color 0.3s; /* Add transitions */
+        }
+
+        /* --- Dark Mode Styles --- */
+        body.dark-mode {
+            background-color: #222;
+            color: #eee;
+        }
+
+        body.dark-mode .container {
+            background-color: #333;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-mode header h1 {
+            color: #eee;
+        }
+        body.dark-mode header {
+             border-bottom-color: #555;
+        }
+
+        body.dark-mode #search-bar {
+            background-color: #444;
+            border-color: #666;
+            color: #eee;
+        }
+
+        /* Dark mode toggle button in dark mode */
+        body.dark-mode #dark-mode-toggle {
+            background-color: #ddd; /* Lighter background */
+            color: #333; /* Dark text */
+        }
+        body.dark-mode #dark-mode-toggle:hover {
+            background-color: #bbb;
+        }
+
+        /* Sort buttons in dark mode */
+        body.dark-mode .sort-controls button {
+            background-color: #555;
+            color: #eee;
+            border: 1px solid #777;
+        }
+        body.dark-mode .sort-controls button:hover {
+             background-color: #666;
+        }
+        body.dark-mode .sort-controls button.active { /* Active sort in dark mode */
+             background-color: #6bbdff; /* Lighter blue */
+             color: #111; /* Darker text for contrast */
+             border-color: #4a9cde;
+        }
+
+
+        body.dark-mode h2 {
+            color: #ccc;
+            border-bottom-color: #555;
+        }
+
+        body.dark-mode .anime-item {
+            background-color: #444;
+            border-color: #555;
+        }
+        body.dark-mode .anime-item:hover {
+             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-mode .anime-poster {
+             background-color: #555; /* Darker placeholder bg */
+        }
+
+        body.dark-mode .anime-link {
+            color: #6bbdff;
+        }
+        body.dark-mode .anime-link[href="x"] {
+            color: #ff6b81; /* Lighter red for dark mode */
+        }
+
+        body.dark-mode footer {
+             border-top-color: #555;
+             color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>My Anime List</h1>
+            <div class="controls">
+                <input type="text" id="search-bar" placeholder="Search anime...">
+                <button id="dark-mode-toggle">Toggle Dark Mode</button>
+            </div>
+            <div class="sort-controls">
+                 <button id="sort-default">Default Order</button>
+                 <button id="sort-az">Sort A-Z</button>
+                 <button id="sort-za">Sort Z-A</button>
+                 <button id="sort-random">Sort Random</button>
+            </div>
+        </header>
+
+        <main>
+            <section id="watched-section">
+                <h2>Watched / Finished Anime</h2>
+                <div id="watched-list" class="anime-list">
+                    <!-- Anime items will be loaded here by JavaScript -->
+                    <p class="loading-message">Loading...</p>
+                </div>
+            </section>
+
+            <section id="interested-section">
+                <h2>Interested Anime</h2>
+                <div id="interested-list" class="anime-list">
+                    <!-- Anime items will be loaded here by JavaScript -->
+                     <p class="loading-message">Loading...</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Click 'x' link placeholder to add your MyAnimeList URL.</p>
+            <p>Replace 'placeholder.png' with actual image paths or URLs.</p>
+        </footer>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+            // --- Anime Data ---
+            // Keep the original arrays immutable for 'default' sort
+            const originalWatchedAnime = Object.freeze([
+                "One-Punch Man", "Konosuba", "Is It Wrong To Pick Up Girls in a Dungeon?",
+                "In An Another World With My Smartphone", "Eromanga-Sensei",
+                "Rascal Does Not Dream of Bunny Girl Senpai", "Twin Star Exorcists",
+                "Masamune-kun's Revenge", "Kill La Kill", "Domestic Girlfriend",
+                "My Teen Romantic Comedy SNAFU", "ReLIFE", "Infinite Stratos",
+                "Cells At Work!", "Mob Psycho 100", "Saga of Tanya the Evil",
+                "Plastic Memories", "Science Fell in Love, So I Tried to Prove it",
+                "Akame Ga Kill!", "Toradora!", "Monthly Girls' Nozaki-kun",
+                "Kokoro Connect", "The Quintessential Quintuplets", "We Never Learn",
+                "You Thought There Was Never A Girl Online?", "Hensuki", "Oreshura",
+                "The Asterisk War", "Oresuki", "Noucome", "HenNeko", "Ben-To", "Toji No Miko",
+                "Date A Live", "Yamada-kun And The Seven Witches",
+                "Cautious Hero: The Hero Is Overpowered But Overly Cautious",
+                "The Devil Is A Part-Timer!", "My Next Life As A Villainess: All Routes Lead To Doom!",
+                "Is This A Zombie?", "Kaguya-Sama: Love is War", "C³", "If Her Flag Breaks",
+                "Tower Of God", "Aria The Scarlet Ammo", "Arifureta: From Commonplace To World's Strongest",
+                "How Not To Summon A Demon Lord", "My Monster Secret", "Chivalry Of A Failed Knight",
+                "Love Tyrant", "Nisekoi", "Invaders of the Rokujouma!?", "Outbreak Company",
+                "Death March To The Parallel World Rhapsody", "The Promised Neverland",
+                "Sky Wizards Academy", "Inari, Konkon, Koi Iroha", "Gonna Be The Twin-Tail!!",
+                "Hataage! Kemono Michia", "Akikan!", "Classroom Of The Elite", "Kämpfer",
+                "Trinity Seven", "The World God Only Knows", "Erased",
+                "If It's For My Daughter, I'd Even Defeat A Demon Lord",
+                "Akashic Records Of Bastard Magic Instructor", "Kiss Him, Not Me",
+                "Misfits of the Demon King Academy", "Chaika: The Coffin Princess (S2) (OVA)",
+                "Dr. Stone", "Tsugumomo", "Deadman Wonderland (OVA)", "Gleipner",
+                "The Disastrous Life of Saiki K", "Is It Wrong To Pick It Girls In A Dungeon Season 3",
+                "Armed Girl's Machiavellism", "Our Last Crusade or The Rise Of A New World",
+                "Inuyashiki Last Hero", "Talentless Nana", "Loves and Lies", "Grimoire of Zero",
+                "Seto no Hanayome (OVA)", "Hinamatsuri", "Kokkoku", "The Girl Who Leapt Through Time",
+                "Jobless Reincarnation", "Ixion Saga DT", "Good Luck Girl!", "Marimashita! Iruma-kun",
+                "To Love-Ru (OVA)", "To Love-Ru 2nd Season", "Kyokou Suiri",
+                "Quintessential Quintuples Season 2", "How to Not Summon A Demon Lord Season 2",
+                "Combatants Will Be Dispatched!", "I'm A Spider, So What?", "Patema Inverted",
+                "Tsuki ga Michibiku Isekai Douchuu", "Bokutachi no Remake",
+                "Jobless Reincarnation Part 2", "Love After World Domination", "Kaguya-Sama Season 3",
+                "Date A Live Season 4", "Science Fell in Love, So I Tried to Prove it Season 2",
+                "The Quintessential Quintuplets Movie", "Classroom of the Elite Season 2",
+                "Is It Wrong to Try to Pick Up Girls in a Dungeon? Season 4 Part 1",
+                "RWBY: Ice Queendom", "Spy x Family", "Spy x Family Part 2", "Mob Psycho 100 Season 2",
+                "Mob Psycho 100 Season 3", "Arknights: Reimei Zensou", "Isekai Ojisan", "Konosuba Season 2",
+                "That Time I Got Reincarnated as a Slime Season 1",
+                "That Time I Got Reincarnated as a Slime Season 2", "Date A Live Season 2",
+                "Date A Live Season 3", "Spy x Family Season 2", // Note: "Spy x Family Season 2" was listed, might be same as Part 2? Included both based on OCR.
+                "Date A Live Season 5", // Note: Date A Live S4 was listed twice, also S5 now
+                "The Misfit of Demon King Academy Season 2 Part 2",
+                "The Misfit of Demon King Academy Season 2", "Hunter x Hunter",
+                "Hunter x Hunter: The Last Mission", "Hunter x Hunter: Phantom Rouge",
+                "Is It Wrong to Try to Pick Up Girls in a Dungeon? Season 4 Part 2",
+                "Weathering With You", "Your Name.", "Castle in the Sky", "My Neighbor Totoro",
+                "Porco Russo", "Princess Mononoke", "Spirited Away", "Howl's Moving Castle",
+                "Ponyo", "Arrietty", "From Up on Poppy Hill", "When Marnie Was There",
+                "Ningen Fushin: Adventurers Who Don`t Believe in Humanity Will Save the World",
+                "Dr. Stone Season 3"
+            ]);
+
+            const originalInterestedAnime = Object.freeze([
+                "In An Another World With My Smartphone Season 2", "Ayakashi Triangle",
+                "Our Last Crusade or the Rise of a New World Season 2",
+                "My Friend's Little Sister Has It In for Me!", "Youjo Senki Season 2",
+                "One Punch Man Season 3", "Konosuba Season 3",
+                "Is It Wrong to Try to Pick Up Girls in a Dungeon? Season 5",
+                "Classroom of Elite Season 3", "Dr. Stone Season 4 Part 1"
+            ]);
+
+            // --- State Variables ---
+            let currentSortType = 'default'; // To track the current sort order
+
+            // --- DOM Elements ---
+            const watchedListContainer = document.getElementById('watched-list');
+            const interestedListContainer = document.getElementById('interested-list');
+            const searchBar = document.getElementById('search-bar');
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const body = document.body;
+            const sortDefaultBtn = document.getElementById('sort-default');
+            const sortAzBtn = document.getElementById('sort-az');
+            const sortZaBtn = document.getElementById('sort-za');
+            const sortRandomBtn = document.getElementById('sort-random');
+            const allSortButtons = [sortDefaultBtn, sortAzBtn, sortZaBtn, sortRandomBtn]; // Helper array
+
+            // --- Functions ---
+
+            // Fisher-Yates (Knuth) Shuffle algorithm
+            function shuffleArray(array) {
+                let currentIndex = array.length, randomIndex;
+                // While there remain elements to shuffle.
+                while (currentIndex > 0) {
+                    // Pick a remaining element.
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+                    // And swap it with the current element.
+                    [array[currentIndex], array[randomIndex]] = [
+                        array[randomIndex], array[currentIndex]];
+                }
+                return array;
+            }
+
+            // Function to create and display anime items
+            function displayAnime(animeArray, container) {
+                container.innerHTML = ''; // Clear previous items (including loading message)
+                if (animeArray.length === 0) {
+                     container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #888;">No matches found.</p>'; // Span across all columns
+                     return;
+                }
+                animeArray.forEach(title => {
+                    const item = document.createElement('div');
+                    item.classList.add('anime-item');
+
+                    const poster = document.createElement('img');
+                    poster.classList.add('anime-poster');
+                    // *** PLACEHOLDER: Replace 'placeholder.png' ***
+                    poster.src = 'placeholder.png';
+                    poster.alt = `${title} Poster`;
+                    poster.onerror = function() { this.src = 'placeholder.png'; this.alt = 'Placeholder Image'; };
+
+                    const link = document.createElement('a');
+                    link.classList.add('anime-link');
+                    // *** PLACEHOLDER: Replace 'x' with MAL URLs ***
+                    link.href = 'x'; // Placeholder link
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = title;
+
+                    item.appendChild(poster);
+                    item.appendChild(link);
+                    container.appendChild(item);
+                });
+            }
+
+             // Function to update the active state of sort buttons
+            function updateSortButtonStates() {
+                allSortButtons.forEach(button => {
+                    if (button.id === `sort-${currentSortType}`) {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                });
+            }
+
+            // Function to filter, sort, and display lists
+            function updateDisplay() {
+                const searchTerm = searchBar.value.toLowerCase();
+
+                // Filter original lists based on search term
+                let filteredWatched = originalWatchedAnime.filter(title =>
+                    title.toLowerCase().includes(searchTerm)
+                );
+                let filteredInterested = originalInterestedAnime.filter(title =>
+                    title.toLowerCase().includes(searchTerm)
+                );
+
+                // Apply sorting based on currentSortType
+                switch (currentSortType) {
+                    case 'az':
+                        // localeCompare is good for strings with special chars/accents
+                        filteredWatched.sort((a, b) => a.localeCompare(b));
+                        filteredInterested.sort((a, b) => a.localeCompare(b));
+                        break;
+                    case 'za':
+                        filteredWatched.sort((a, b) => b.localeCompare(a));
+                        filteredInterested.sort((a, b) => b.localeCompare(a));
+                        break;
+                    case 'random':
+                        filteredWatched = shuffleArray(filteredWatched);
+                        filteredInterested = shuffleArray(filteredInterested);
+                        break;
+                    case 'default':
+                    default:
+                        // No additional sorting needed, already filtered from original order
+                        break;
+                }
+
+                // Display the processed lists
+                displayAnime(filteredWatched, watchedListContainer);
+                displayAnime(filteredInterested, interestedListContainer);
+                updateSortButtonStates(); // Highlight the active sort button
+            }
+
+
+            // Function to update dark mode button text
+            function updateDarkModeButtonText() {
+                if (body.classList.contains('dark-mode')) {
+                    darkModeToggle.textContent = 'Toggle Light Mode';
+                } else {
+                    darkModeToggle.textContent = 'Toggle Dark Mode';
+                }
+            }
+
+            // Function to toggle dark mode
+            function toggleDarkMode() {
+                body.classList.toggle('dark-mode');
+                updateDarkModeButtonText(); // Update text after toggling
+                // Optional: Save preference to localStorage
+                if (body.classList.contains('dark-mode')) {
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    localStorage.setItem('darkMode', 'disabled');
+                }
+            }
+
+            // --- Initial Setup & Event Listeners ---
+
+            // Check localStorage for dark mode preference on load
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                body.classList.add('dark-mode');
+            }
+            updateDarkModeButtonText(); // Set initial button text correctly
+
+            // Initial display using the update function (handles default sort)
+            updateDisplay();
+
+            // Search bar input event
+            searchBar.addEventListener('input', updateDisplay); // Directly call updateDisplay
+
+            // Dark mode toggle button click event
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+
+            // Sort button click events
+            sortDefaultBtn.addEventListener('click', () => {
+                currentSortType = 'default';
+                updateDisplay();
+            });
+            sortAzBtn.addEventListener('click', () => {
+                currentSortType = 'az';
+                updateDisplay();
+            });
+            sortZaBtn.addEventListener('click', () => {
+                currentSortType = 'za';
+                updateDisplay();
+            });
+            sortRandomBtn.addEventListener('click', () => {
+                currentSortType = 'random';
+                updateDisplay();
+            });
+
+        }); // End DOMContentLoaded
+    </script>
+</body>
+</html>
